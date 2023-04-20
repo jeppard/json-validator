@@ -59,3 +59,13 @@ describe("JSON Validator schema", () => {
         expect(() => {validator.updateSchema(schema)}).to.throw();
     });
 });
+
+describe("JSON Validator validate", () => {
+    it("should return true if the type matches the schema", () => {
+        let validator = new JSONValidator({type: "string"});
+        expect(validator.validate(JSON.stringify(""))).to.be.true;
+        expect(validator.validate(JSON.stringify("foo"))).to.be.true;
+        expect(validator.validate(JSON.stringify(1))).to.be.not.true;
+
+    })
+});

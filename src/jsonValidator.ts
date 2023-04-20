@@ -1,5 +1,8 @@
 export class JSONValidator {
-    validate = () => {};
+    validate = (jsonString: string) => {
+        let json = JSON.parse(jsonString);
+        return typeof(json) === 'string'
+    };
     private checkSchema = (schema: any) => {
         if (!schema.hasOwnProperty("type")) {
             throw new Error("Schema must have a type property");
