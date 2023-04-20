@@ -106,4 +106,14 @@ describe("JSON Validator validate number", () => {
         expect(validator.validate(JSON.stringify(1))).to.be.true;
         expect(validator.validate(JSON.stringify(2))).to.be.false;
     });
+    it("should be a integer if the schema requires it", () => {
+        let validator = new JSONValidator({type: "number", subtype: "integer"});
+        expect(validator.validate(JSON.stringify(1))).to.be.true;
+        expect(validator.validate(JSON.stringify(1.1))).to.be.false;
+    });
+    it("should be a float if the schema requires it", () => {
+        let validator = new JSONValidator({type: "number", subtype: "float"});
+        expect(validator.validate(JSON.stringify(1))).to.be.false;
+        expect(validator.validate(JSON.stringify(1.1))).to.be.true;
+    });
 });

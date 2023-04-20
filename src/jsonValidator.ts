@@ -13,7 +13,7 @@ export class JSONValidator {
         return true;
     };
 
-    private validateNumber = (number: any, schema: {type: "number", minimum?: number, maximum?: number}) => {
+    private validateNumber = (number: any, schema: {type: "number", minimum?: number, maximum?: number, subtype?: string}) => {
         if (typeof(number) !== "number") {
             return false;
         }
@@ -22,6 +22,15 @@ export class JSONValidator {
         }
         if (schema.maximum && number > schema.maximum) {
             return false;
+        }
+        if (!schema.subtype) {
+            return true;
+        }
+        if (schema.subtype === "integer") {
+            return number % 1 === 0;
+        }
+        if (schema.subtype === "float") {
+            return number % 1 !== 0;
         }
         return true;
     };
