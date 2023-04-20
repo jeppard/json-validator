@@ -95,6 +95,28 @@ describe("JSON Validator validate", () => {
     })
 });
 
+describe("JSON Validator validate string", () => {
+    it("should be longer than the minimum length", () => {
+        let validator = new JSONValidator({type: "string", minLength: 1});
+        expect(validator.validate(JSON.stringify("a"))).to.be.true;
+        expect(validator.validate(JSON.stringify(""))).to.be.false;
+    });
+    it("should be shorter than the maximum length", () => {
+        let validator = new JSONValidator({type: "string", maxLength: 1});
+        expect(validator.validate(JSON.stringify("a"))).to.be.true;
+        expect(validator.validate(JSON.stringify("aa"))).to.be.false;
+    });
+    it("should match the pattern", () => {
+        let validator = new JSONValidator({type: "string", pattern: "^a$"});
+        expect(validator.validate(JSON.stringify("a"))).to.be.true;
+        expect(validator.validate(JSON.stringify("aa"))).to.be.false;
+        validator.updateSchema({type: "string", pattern: "^b+$"});
+        expect(validator.validate(JSON.stringify("b"))).to.be.true;
+        expect(validator.validate(JSON.stringify("bb"))).to.be.true;
+        expect(validator.validate(JSON.stringify("a"))).to.be.false;
+    });
+});
+
 describe("JSON Validator validate number", () => {
     it("should be higher than the minimum", () => {
         let validator = new JSONValidator({type: "number", minimum: 1});

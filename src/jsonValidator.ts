@@ -10,9 +10,27 @@ export class JSONValidator {
         if (this.schema.type === "number") {
             return this.validateNumber(json, this.schema);
         }
+        if (this.schema.type === "string") {
+            return this.validateString(json, this.schema);
+        }
         return true;
     };
 
+    private validateString = (string: any, schema: {type: "string", minLength?: number, maxLength?: number, pattern?: string}) => {
+        if (typeof(string) !== "string") {
+            return false;
+        }
+        if (schema.minLength && string.length < schema.minLength) {
+            return false;
+        }
+        if (schema.maxLength && string.length > schema.maxLength) {
+            return false;
+        }
+        if (schema.pattern && !new RegExp(schema.pattern).test(string)) {
+            return false;
+        }
+        return true;
+    };
     private validateNumber = (number: any, schema: {type: "number", minimum?: number, maximum?: number, subtype?: string}) => {
         if (typeof(number) !== "number") {
             return false;
