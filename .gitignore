@@ -1,3 +1,6 @@
+# All build JavaScript files are ignored
+**/*.js
+
 # Logs
 logs
 *.log
