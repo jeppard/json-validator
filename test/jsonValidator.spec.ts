@@ -139,3 +139,33 @@ describe("JSON Validator validate number", () => {
         expect(validator.validate(JSON.stringify(1.1))).to.be.true;
     });
 });
+
+describe("JSON Validator validate array", () => {
+    it("should have a minimum number of items", () => {
+        let validator = new JSONValidator({type: "array", minItems: 1});
+        expect(validator.validate(JSON.stringify([1]))).to.be.true;
+        expect(validator.validate(JSON.stringify([]))).to.be.false;
+    });
+    it("should have a maximum number of items", () => {
+        let validator = new JSONValidator({type: "array", maxItems: 1});
+        expect(validator.validate(JSON.stringify([1]))).to.be.true;
+        expect(validator.validate(JSON.stringify([1, 2]))).to.be.false;
+    });
+    it("should have items that matches the item schema", () => {
+        let validator = new JSONValidator({type: "array", items: {type: "string"}});
+        expect(validator.validate(JSON.stringify(["a"]))).to.be.true;
+        expect(validator.validate(JSON.stringify([1]))).to.be.false;
+        expect(validator.validate(JSON.stringify(["a", 1]))).to.be.false;
+        validator.updateSchema({type: "array", items: {type: "number"}});
+        expect(validator.validate(JSON.stringify([1]))).to.be.true;
+        expect(validator.validate(JSON.stringify(["a"]))).to.be.false;
+        expect(validator.validate(JSON.stringify([1, "a"]))).to.be.false;
+    });
+    it("should have items  of different types if the schema requires it", () => {
+        let validator = new JSONValidator({type: "array", items: [{type: "string"}, {type: "number"}]});
+        expect(validator.validate(JSON.stringify(["a", 1]))).to.be.true;
+        expect(validator.validate(JSON.stringify(["a", "a"]))).to.be.false;
+        expect(validator.validate(JSON.stringify([1, 1]))).to.be.false;
+        expect(validator.validate(JSON.stringify([1, "a"]))).to.be.false;
+    });
+});

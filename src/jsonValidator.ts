@@ -1,17 +1,22 @@
 export class JSONValidator {
     validate = (jsonString: string) => {
-        let json = JSON.parse(jsonString);
-        if (this.schema.type === "array") {
-            return Array.isArray(json);
+        return this.validateItem(JSON.parse(jsonString), this.schema);
+    };
+    private validateItem = (json: any, schema: any) => {
+        if (schema.type === "array") {
+            return this.validateArray(json, this.schema);
         }
-        if (!(typeof(json) === this.schema.type && !Array.isArray(json))){
+        if (!(typeof(json) === schema.type && !Array.isArray(json))){
             return false;
         }
-        if (this.schema.type === "number") {
-            return this.validateNumber(json, this.schema);
+        if (schema.type === "number") {
+            return this.validateNumber(json,schema);
         }
-        if (this.schema.type === "string") {
-            return this.validateString(json, this.schema);
+        if (schema.type === "string") {
+            return this.validateString(json, schema);
+        }
+        if (schema.type === "array") {
+            return this.validateArray(json, schema);
         }
         return true;
     };
@@ -52,6 +57,26 @@ export class JSONValidator {
         }
         return true;
     };
+
+    private validateArray(array: any, schema: {type: "array", minItems?: number, maxItems?: number, items?: any}) {
+        if (!Array.isArray(array)) {
+            return false;
+        }
+        if (schema.minItems && array.length < schema.minItems) {
+            return false;
+        }
+        if (schema.maxItems && array.length > schema.maxItems) {
+            return false;
+        }
+        if (schema.items) {
+            for (let i = 0; i < array.length; i++) {
+                if (!this.validateItem(array[i], !Array.isArray(schema.items) ? schema.items : schema.items[i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     private checkSchema = (schema: any) => {
         if (!schema.hasOwnProperty("type")) {
