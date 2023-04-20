@@ -1,6 +1,6 @@
 export class JSONValidator {
     validate = () => {};
-    constructor() {
+    constructor(schema: any = {}) {
     }
 }
 

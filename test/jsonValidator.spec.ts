@@ -13,4 +13,9 @@ describe("JSON Validator", () => {
     it("should have a validate method", () =>{
         expect(jsonValidator).to.have.property("validate").that.is.a("function");
     });
+    it("should take a schema as a parameter", () => {
+        let schema = {};
+        let validator = new JSONValidator(schema);
+        expect(validator).to.exist;
+    });
 });
