@@ -6,8 +6,21 @@ export class JSONValidator {
         }
         if (!(typeof(json) === this.schema.type && !Array.isArray(json))){
             return false;
-        };
-        if (this.schema.hasOwnProperty("minimum") && json < this.schema.minimum) {
+        }
+        if (this.schema.type === "number") {
+            return this.validateNumber(json, this.schema);
+        }
+        return true;
+    };
+
+    private validateNumber = (number: any, schema: {type: "number", minimum?: number, maximum?: number}) => {
+        if (typeof(number) !== "number") {
+            return false;
+        }
+        if (schema.minimum && number < schema.minimum) {
+            return false;
+        }
+        if (schema.maximum && number > schema.maximum) {
             return false;
         }
         return true;

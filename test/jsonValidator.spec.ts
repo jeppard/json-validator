@@ -101,4 +101,9 @@ describe("JSON Validator validate number", () => {
         expect(validator.validate(JSON.stringify(1))).to.be.true;
         expect(validator.validate(JSON.stringify(0))).to.be.false;
     });
+    it("should be lower than the maximum", () => {
+        let validator = new JSONValidator({type: "number", maximum: 1});
+        expect(validator.validate(JSON.stringify(1))).to.be.true;
+        expect(validator.validate(JSON.stringify(2))).to.be.false;
+    });
 });
