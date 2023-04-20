@@ -169,3 +169,53 @@ describe("JSON Validator validate array", () => {
         expect(validator.validate(JSON.stringify([1, "a"]))).to.be.false;
     });
 });
+
+describe("JSON Validator validate object", () => {
+    it("should have the keys of the schema with right types", () => {
+        let validator = new JSONValidator({type: "object", "a": {type: "string"}});
+        expect(validator.validate(JSON.stringify({a: "a"}))).to.be.true;
+        expect(validator.validate(JSON.stringify({a: 1}))).to.be.false;
+        expect(validator.validate(JSON.stringify({b: "a"}))).to.be.false;
+        validator.updateSchema({type: "object", "a": {type: "number"}});
+        expect(validator.validate(JSON.stringify({a: 1}))).to.be.true;
+        expect(validator.validate(JSON.stringify({a: "a"}))).to.be.false;
+        expect(validator.validate(JSON.stringify({b: 1}))).to.be.false;
+        validator.updateSchema({type: "object", "a": {type: "array"}});
+        expect(validator.validate(JSON.stringify({a: []}))).to.be.true;
+        expect(validator.validate(JSON.stringify({a: {}}))).to.be.false;
+        expect(validator.validate(JSON.stringify({b: []}))).to.be.false;
+        validator.updateSchema({type: "object", "a": {type: "object"}});
+        expect(validator.validate(JSON.stringify({a: {}}))).to.be.true;
+        expect(validator.validate(JSON.stringify({a: []}))).to.be.false;
+        expect(validator.validate(JSON.stringify({b: {}}))).to.be.false;
+        validator.updateSchema({type: "object", "a": {type: "boolean"}});
+        expect(validator.validate(JSON.stringify({a: true}))).to.be.true;
+        expect(validator.validate(JSON.stringify({a: false}))).to.be.true;
+        expect(validator.validate(JSON.stringify({a: "a"}))).to.be.false;
+        expect(validator.validate(JSON.stringify({b: true}))).to.be.false;
+    });
+    it("should not fail if a key is missing, if the schema does not require it", () => {
+        let validator = new JSONValidator({type: "object", "a": {type: "string", required: false}});
+        expect(validator.validate(JSON.stringify({}))).to.be.true;
+        expect(validator.validate(JSON.stringify({a: "a"}))).to.be.true;
+        expect(validator.validate(JSON.stringify({a: 1}))).to.be.false;
+        validator.updateSchema({type: "object", "a": {type: "string", required: true}});
+        expect(validator.validate(JSON.stringify({}))).to.be.false;
+    });
+});
+
+describe("JSON Validator validate object with nested objects", () => {
+    it("should be able to validate nested objects", () => {
+        let validator = new JSONValidator({type: "object", "a": {type: "object", "b": {type: "string"}}});
+        expect(validator.validate(JSON.stringify({a: {b: "a"}}))).to.be.true;
+        expect(validator.validate(JSON.stringify({a: {b: 1}}))).to.be.false;
+        expect(validator.validate(JSON.stringify({a: {c: "a"}}))).to.be.false;
+        expect(validator.validate(JSON.stringify({b: {b: "a"}}))).to.be.false;
+    });
+    it("should be able to validate nested objects with nested arrays", () => {
+        let validator = new JSONValidator({type: "object", "a": {type: "object", "b": {type: "array", items: {type: "string"}}}});
+        expect(validator.validate(JSON.stringify({a: {b: ["a"]}}))).to.be.true;
+        expect(validator.validate(JSON.stringify({a: {b: ["a", 1]}}))).to.be.false;
+        expect(validator.validate(JSON.stringify({a: {b: 1}}))).to.be.false;
+    });
+});

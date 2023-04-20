@@ -4,7 +4,7 @@ export class JSONValidator {
     };
     private validateItem = (json: any, schema: any) => {
         if (schema.type === "array") {
-            return this.validateArray(json, this.schema);
+            return this.validateArray(json, schema);
         }
         if (!(typeof(json) === schema.type && !Array.isArray(json))){
             return false;
@@ -17,6 +17,9 @@ export class JSONValidator {
         }
         if (schema.type === "array") {
             return this.validateArray(json, schema);
+        }
+        if (schema.type === "object") {
+            return this.validateObject(json, schema);
         }
         return true;
     };
@@ -73,6 +76,25 @@ export class JSONValidator {
                 if (!this.validateItem(array[i], !Array.isArray(schema.items) ? schema.items : schema.items[i])) {
                     return false;
                 }
+            }
+        }
+        return true;
+    }
+
+    private validateObject(object: any, schema: {type: "object", [key: string]: any}) {
+        if (typeof(object) !== "object" || Array.isArray(object)) {
+            return false;
+        }
+        let {type, ...keys} = schema;
+        for (let key in keys) {
+            if (!object.hasOwnProperty(key)) {
+                if (keys[key].required === false) {
+                    continue;
+                }
+                return false;
+            }
+            if (!this.validateItem(object[key], keys[key])) {
+                return false;
             }
         }
         return true;
