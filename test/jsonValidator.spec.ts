@@ -94,3 +94,11 @@ describe("JSON Validator validate", () => {
         expect(validator.validate(JSON.stringify([]))).to.be.true;
     })
 });
+
+describe("JSON Validator validate number", () => {
+    it("should be higher than the minimum", () => {
+        let validator = new JSONValidator({type: "number", minimum: 1});
+        expect(validator.validate(JSON.stringify(1))).to.be.true;
+        expect(validator.validate(JSON.stringify(0))).to.be.false;
+    });
+});

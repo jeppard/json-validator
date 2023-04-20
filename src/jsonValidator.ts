@@ -4,8 +4,15 @@ export class JSONValidator {
         if (this.schema.type === "array") {
             return Array.isArray(json);
         }
-        return typeof(json) === this.schema.type && !Array.isArray(json);
+        if (!(typeof(json) === this.schema.type && !Array.isArray(json))){
+            return false;
+        };
+        if (this.schema.hasOwnProperty("minimum") && json < this.schema.minimum) {
+            return false;
+        }
+        return true;
     };
+
     private checkSchema = (schema: any) => {
         if (!schema.hasOwnProperty("type")) {
             throw new Error("Schema must have a type property");
@@ -14,10 +21,12 @@ export class JSONValidator {
             throw new Error("Schema type must be string, number, boolean, object, or array");
         }
     };
+
     updateSchema = (schema: any) => {
         this.checkSchema(schema);
         this.schema = schema;
     };
+
     schema: any;
     constructor(schema: any = {}) {
         this.checkSchema(schema);
