@@ -1,7 +1,10 @@
 export class JSONValidator {
     validate = (jsonString: string) => {
         let json = JSON.parse(jsonString);
-        return typeof(json) === 'string'
+        if (this.schema.type === "array") {
+            return Array.isArray(json);
+        }
+        return typeof(json) === this.schema.type && !Array.isArray(json);
     };
     private checkSchema = (schema: any) => {
         if (!schema.hasOwnProperty("type")) {

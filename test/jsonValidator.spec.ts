@@ -64,8 +64,33 @@ describe("JSON Validator validate", () => {
     it("should return true if the type matches the schema", () => {
         let validator = new JSONValidator({type: "string"});
         expect(validator.validate(JSON.stringify(""))).to.be.true;
-        expect(validator.validate(JSON.stringify("foo"))).to.be.true;
         expect(validator.validate(JSON.stringify(1))).to.be.not.true;
-
+        expect(validator.validate(JSON.stringify(true))).to.be.not.true;
+        expect(validator.validate(JSON.stringify({}))).to.be.not.true;
+        expect(validator.validate(JSON.stringify([]))).to.be.not.true;
+        validator.updateSchema({type: "number"});
+        expect(validator.validate(JSON.stringify(""))).to.be.not.true;
+        expect(validator.validate(JSON.stringify(1))).to.be.true;
+        expect(validator.validate(JSON.stringify(true))).to.be.not.true;
+        expect(validator.validate(JSON.stringify({}))).to.be.not.true;
+        expect(validator.validate(JSON.stringify([]))).to.be.not.true;
+        validator.updateSchema({type: "boolean"});
+        expect(validator.validate(JSON.stringify(""))).to.be.not.true;
+        expect(validator.validate(JSON.stringify(1))).to.be.not.true;
+        expect(validator.validate(JSON.stringify(true))).to.be.true;
+        expect(validator.validate(JSON.stringify({}))).to.be.not.true;
+        expect(validator.validate(JSON.stringify([]))).to.be.not.true;
+        validator.updateSchema({type: "object"});
+        expect(validator.validate(JSON.stringify(""))).to.be.not.true;
+        expect(validator.validate(JSON.stringify(1))).to.be.not.true;
+        expect(validator.validate(JSON.stringify(true))).to.be.not.true;
+        expect(validator.validate(JSON.stringify({}))).to.be.true;
+        expect(validator.validate(JSON.stringify([]))).to.be.not.true;
+        validator.updateSchema({type: "array"});
+        expect(validator.validate(JSON.stringify(""))).to.be.not.true;
+        expect(validator.validate(JSON.stringify(1))).to.be.not.true;
+        expect(validator.validate(JSON.stringify(true))).to.be.not.true;
+        expect(validator.validate(JSON.stringify({}))).to.be.not.true;
+        expect(validator.validate(JSON.stringify([]))).to.be.true;
     })
 });
