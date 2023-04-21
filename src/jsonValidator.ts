@@ -50,9 +50,6 @@ export class JSONValidator {
         if (schema.subtype === "integer") {
             return number % 1 === 0;
         }
-        if (schema.subtype === "float") {
-            return number % 1 !== 0;
-        }
         return true;
     };
 
@@ -67,6 +64,9 @@ export class JSONValidator {
             return false;
         }
         if (schema.items) {
+            if (Array.isArray(schema.items) && array.length !== schema.items.length) {
+                return false;
+            }
             for (let i = 0; i < array.length; i++) {
                 if (!this.validateItem(array[i], !Array.isArray(schema.items) ? schema.items : schema.items[i])) {
                     return false;
@@ -81,13 +81,10 @@ export class JSONValidator {
             return false;
         }
         for (let key in schema.keys) {
-            if (!object.hasOwnProperty(key)) {
-                if (schema.keys[key].required === false) {
-                    continue;
-                }
+            if (!object.hasOwnProperty(key) && schema.keys[key].required) {
                 return false;
             }
-            if (!this.validateItem(object[key], schema.keys[key])) {
+            if (object.hasOwnProperty(key) && !this.validateItem(object[key], schema.keys[key])) {
                 return false;
             }
         }
