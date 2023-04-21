@@ -2,29 +2,24 @@ export class JSONValidator {
     validate = (jsonString: string) => {
         return this.validateItem(JSON.parse(jsonString), this.schema);
     };
-    private validateItem = (json: any, schema: any) => {
-        if (schema.type === "array") {
-            return this.validateArray(json, schema);
+    private validateItem = (json: any, schema: JSONSchema) => {
+        switch (schema.type) {
+            case "string":
+                return this.validateString(json, schema);
+            case "number":
+                return this.validateNumber(json, schema);
+            case "boolean":
+                return this.validateBoolean(json, schema);
+            case "array":
+                return this.validateArray(json, schema);
+            case "object":
+                return this.validateObject(json, schema);
+            default:
+                throw new Error("Schema type must be string, number, boolean, object, or array");
         }
-        if (!(typeof(json) === schema.type && !Array.isArray(json))){
-            return false;
-        }
-        if (schema.type === "number") {
-            return this.validateNumber(json,schema);
-        }
-        if (schema.type === "string") {
-            return this.validateString(json, schema);
-        }
-        if (schema.type === "array") {
-            return this.validateArray(json, schema);
-        }
-        if (schema.type === "object") {
-            return this.validateObject(json, schema);
-        }
-        return true;
     };
 
-    private validateString = (string: any, schema: {type: "string", minLength?: number, maxLength?: number, pattern?: string}) => {
+    private validateString = (string: any, schema: StringSchema) => {
         if (typeof(string) !== "string") {
             return false;
         }
@@ -61,7 +56,7 @@ export class JSONValidator {
         return true;
     };
 
-    private validateArray(array: any, schema: {type: "array", minItems?: number, maxItems?: number, items?: any}) {
+    private validateArray(array: any, schema: ArraySchema) {
         if (!Array.isArray(array)) {
             return false;
         }
@@ -81,26 +76,25 @@ export class JSONValidator {
         return true;
     }
 
-    private validateObject(object: any, schema: {type: "object", [key: string]: any}) {
+    private validateObject(object: any, schema: ObjectSchema) {
         if (typeof(object) !== "object" || Array.isArray(object)) {
             return false;
         }
-        let {type, ...keys} = schema;
-        for (let key in keys) {
+        for (let key in schema.keys) {
             if (!object.hasOwnProperty(key)) {
-                if (keys[key].required === false) {
+                if (schema.keys[key].required === false) {
                     continue;
                 }
                 return false;
             }
-            if (!this.validateItem(object[key], keys[key])) {
+            if (!this.validateItem(object[key], schema.keys[key])) {
                 return false;
             }
         }
         return true;
     }
 
-    private checkSchema = (schema: any) => {
+    private checkSchema = (schema: JSONSchema) => {
         if (!schema.hasOwnProperty("type")) {
             throw new Error("Schema must have a type property");
         }
@@ -109,15 +103,28 @@ export class JSONValidator {
         }
     };
 
-    updateSchema = (schema: any) => {
+    private validateBoolean = (boolean: any, schema: BooleanSchema) => {
+        return typeof(boolean) === schema.type;
+    };
+
+    updateSchema = (schema: JSONSchema) => {
         this.checkSchema(schema);
         this.schema = schema;
     };
 
-    schema: any;
-    constructor(schema: any = {}) {
+    schema: JSONSchema;
+    constructor(schema: JSONSchema) {
         this.checkSchema(schema);
         this.schema = schema;
     }
 }
 
+type BooleanSchema = {type: "boolean"};
+type StringSchema = {type: "string", minLength?: number, maxLength?: number, pattern?: string};
+type NumberSchema = {type: "number", minimum?: number, maximum?: number, subtype?: "integer" | "float"};
+type ArraySchema = {type: "array", minItems?: number, maxItems?: number, items?: JSONSchema | JSONSchema[]};
+type ObjectSchema = { type: "object", keys?: { [key: string]: JSONSchema & { required?: boolean } } };
+type JSONSchema = BooleanSchema | StringSchema | NumberSchema | ArraySchema | ObjectSchema;
+
+
+export {BooleanSchema, StringSchema, NumberSchema, ArraySchema, ObjectSchema, JSONSchema}
